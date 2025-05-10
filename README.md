@@ -1,50 +1,31 @@
-# Welcome to your Expo app 👋
+# PI-ConcretizaTech
+### ConcretizaTech é um sistema digital que possibilita a empresa Concretiza Estaca Hélice Contínua a visualizar os dados de seus serviços anteriores e contruir orçamentos para novos serviços.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Tecnologias:
 
-## Get started
+### Desenvolvimento front-end: 
+[![Front-End](https://skillicons.dev/icons?i=react)](https://skillicons.dev)
+### Desenvolvimento back-end: 
+[![Backe-End]([![My Skills](https://skillicons.dev/icons?i=js)](https://skillicons.dev))]
+### Infraestrutura:
+[![Infra](https://skillicons.dev/icons?i=mysql,figma&theme=dark)](https://skillicons.dev)
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+### Autores
 
-2. Start the app
+- [@Douglista](https://github.com/Douglista)
+Douglas Portatil Silva - RA: 23.01206-4
+- [@guctn](https://github.com/guctn)
+Gustavo Coutinho Arruda - RA: 23.00938-0
+-[@sophiasissi(https://github.com/sophiasissi)]
+Sophia Sissi Curcio Guedes
+- [@ThiagoSoto](https://github.com/ThiagoSoto)
+Thiago Augusto da Costa Soto - RA: 23.01679-5
+- [@VictorPazo](https://github.com/VictorPazo)
+Victor Pazo Molina da Silva - RA: 22.00429-7
 
-   ```bash
-   npx expo start
-   ```
+## Agradecimentos
+Idealizador: Concretiza Estaca Hélice Contínua
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Professores e mentores: Agradecemos aos professores e mentores que nos auxiliaram durante o desenvolvimento do projeto, com seus valiosos insights e apoio.
+#### Esperamos que o ConcretizaTech seja uma ferramenta útil e funcional para os funcionários da empresa atigirem melhores resultados!
