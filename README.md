@@ -6,7 +6,7 @@
 ### Desenvolvimento front-end: 
 [![Front-End](https://skillicons.dev/icons?i=react)](https://skillicons.dev)
 ### Desenvolvimento back-end: 
-[![Backe-End]([![My Skills](https://skillicons.dev/icons?i=js)](https://skillicons.dev))]
+[![Backe-End](https://skillicons.dev/icons?i=js)](https://skillicons.dev)
 ### Infraestrutura:
 [![Infra](https://skillicons.dev/icons?i=mysql,figma&theme=dark)](https://skillicons.dev)
 
@@ -17,8 +17,8 @@
 Douglas Portatil Silva - RA: 23.01206-4
 - [@guctn](https://github.com/guctn)
 Gustavo Coutinho Arruda - RA: 23.00938-0
--[@sophiasissi(https://github.com/sophiasissi)]
-Sophia Sissi Curcio Guedes
+- [@sophiasissi](https://github.com/sophiasissi)
+Sophia Sissi Curcio Guedes - RA: 23.01044-4
 - [@ThiagoSoto](https://github.com/ThiagoSoto)
 Thiago Augusto da Costa Soto - RA: 23.01679-5
 - [@VictorPazo](https://github.com/VictorPazo)
