@@ -1,0 +1,164 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 50px 120px 120px 120px; /* Top Right Bottom Left */
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    padding: 40px 80px 80px 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 30px 60px 60px 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 25px 20px 40px 20px;
+  }
+}
+
+.title {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 90px;
+  color: #323268;
+  max-width: 1000px;
+  text-align: left;
+  margin-left: 0;
+  align-self: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .title {
+    font-size: 38px;
+    margin-bottom: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 32px;
+    margin-bottom: 50px;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 28px;
+    margin-bottom: 40px;
+  }
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 60px;
+}
+
+.featureButton {
+  width: 300px;
+  height: 300px;
+  background-color: #bebee8;
+  border: none;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: #323268;
+  text-align: left;
+}
+
+.featureButton:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.featureIcon {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.featureTitle {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+@media (max-width: 1024px) {
+  .buttonsContainer {
+    gap: 40px;
+  }
+
+  .featureButton {
+    width: 250px;
+    height: 250px;
+  }
+
+  .featureIcon {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .buttonsContainer {
+    gap: 30px;
+  }
+
+  .featureButton {
+    width: 220px;
+    height: 220px;
+    padding: 1.5rem;
+  }
+
+  .featureIcon {
+    margin-bottom: 1rem;
+  }
+
+  .featureIcon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .featureTitle {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .buttonsContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .featureButton {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
