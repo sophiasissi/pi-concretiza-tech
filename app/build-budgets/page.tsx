@@ -221,13 +221,53 @@ export default function BuildBudgetsPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real application, you would send this data to your API
-    console.log("Form data:", formData);
-    // Show preview after submission
+const [isSaving, setIsSaving] = useState(false);
+const [saveError, setSaveError] = useState<string | null>(null);
+const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
+
+const handleSubmit = async (e: React.FormEvent) => { // Marque como async
+  e.preventDefault();
+  setIsSaving(true);     // Indica que o salvamento começou
+  setSaveError(null);    // Limpa erros anteriores
+  setSaveSuccess(null);  // Limpa mensagens de sucesso anteriores
+
+  // O comentário original já indicava o próximo passo:
+  // // In a real application, you would send this data to your API
+  console.log("Enviando para API - Form data:", formData);
+
+  try {
+    const response = await fetch("/api/projects", { // Endpoint da API que criamos
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData), // Envia os dados do formulário como JSON
+    });
+
+    const result = await response.json(); // Pega a resposta da API
+
+    if (!response.ok) {
+      // Se a API retornou um erro (status não foi 2xx)
+      throw new Error(result.details || result.error || "Falha ao salvar orçamento");
+    }
+
+    // Se chegou aqui, a API salvou com sucesso
+    setSaveSuccess(result.message || "Orçamento salvo com sucesso!");
+    console.log("Orçamento salvo:", result);
+    // Opcional: Limpar o formulário ou redirecionar após o sucesso
+    // setFormData({ ...initialFormData }); // Resetar formulário
+    // router.push("/algum-lugar-apos-salvar"); // Redirecionar
+
+    // Você ainda pode querer mostrar a pré-visualização após o sucesso
     setShowPreview(true);
-  };
+
+  } catch (err) {
+    console.error("Erro ao salvar orçamento:", err);
+    setSaveError((err as Error).message || "Ocorreu um erro ao salvar. Tente novamente.");
+  } finally {
+    setIsSaving(false); // Indica que o salvamento terminou (com sucesso ou erro)
+  }
+};
 
   // Function to add a new row
   const addRow = () => {

@@ -1,0 +1,89 @@
+import { NextResponse } from "next/server";
+import mysql, { OkPacket, ResultSetHeader } from 'mysql2/promise'; // ResultSetHeader para UPDATE
+
+// --- Configuração da Conexão com o MySQL (COPIE DE UMA ROTA FUNCIONAL) ---
+const pool = mysql.createPool({
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || '', // Sua senha correta
+  database: process.env.MYSQL_DATABASE || 'meu_banco_de_dados', // Seu banco
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+async function getDbConnection() {
+  return pool.getConnection();
+}
+// --- Fim da Configuração da Conexão ---
+
+interface UpdateObservationRequest {
+  id_projeto: number;
+  descricao: string;
+}
+
+export async function POST(request: Request) { // Pode ser POST ou PUT
+  let connection;
+  try {
+    const { id_projeto, descricao }: UpdateObservationRequest = await request.json();
+
+    if (id_projeto === undefined || id_projeto === null || typeof id_projeto !== 'number') {
+      return NextResponse.json({ error: "ID do projeto inválido ou ausente." }, { status: 400 });
+    }
+
+    const newDescricao = typeof descricao === 'string' ? descricao.trim() : "";
+
+    connection = await getDbConnection();
+    await connection.beginTransaction();
+
+    if (newDescricao === "") {
+      // Se a descrição nova é vazia, remove todas as observações para o projeto
+      const [deleteResult] = await connection.execute<ResultSetHeader>(
+        "DELETE FROM Observacoes WHERE id_projeto = ?",
+        [id_projeto]
+      );
+      console.log(`Observações para o projeto ID ${id_projeto} deletadas: ${deleteResult.affectedRows} linha(s) afetada(s).`);
+    } else {
+      // Tenta atualizar observações existentes para este projeto
+      // Isso atualizará TODAS as linhas de observação para este id_projeto com a nova descrição.
+      // Se você pretende que um projeto tenha apenas UMA linha de observação, esta abordagem
+      // efetivamente "sobrescreve" o texto dessa observação (ou observações).
+      const [updateResult] = await connection.execute<ResultSetHeader>(
+        "UPDATE Observacoes SET descricao = ? WHERE id_projeto = ?",
+        [newDescricao, id_projeto]
+      );
+
+      console.log(`Tentativa de UPDATE para projeto ID ${id_projeto}: ${updateResult.affectedRows} linha(s) atualizada(s).`);
+
+      if (updateResult.affectedRows === 0) {
+        // Nenhuma linha foi atualizada, então não existia observação para este projeto. Inserir nova.
+        await connection.execute<OkPacket>(
+          "INSERT INTO Observacoes (id_projeto, descricao) VALUES (?, ?)", // Query INSERT corrigida
+          [id_projeto, newDescricao]
+        );
+        console.log(`Nova observação inserida para o projeto ID ${id_projeto}.`);
+      }
+    }
+
+    await connection.commit();
+
+    return NextResponse.json({ success: true, message: "Observação atualizada com sucesso!" });
+
+  } catch (error: any) {
+    if (connection) await connection.rollback();
+    console.error("API /api/observacoes: Erro ao atualizar observação:", error);
+    const errorDetails = process.env.NODE_ENV === 'development' ? { details: error.message, stack: error.stack } : { details: "Erro interno no servidor." };
+    return NextResponse.json(
+      { error: "Falha ao atualizar observação", ...errorDetails },
+      { status: 500 }
+    );
+  } finally {
+    if (connection) {
+      try {
+        await connection.release();
+      } catch (releaseError) {
+        console.error("API /api/observacoes: Erro ao liberar conexão:", releaseError);
+      }
+    }
+  }
+}
