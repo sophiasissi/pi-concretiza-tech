@@ -1,237 +1,249 @@
-"use client"
+"use client";
 
-import type React from "react"
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import HeaderWithIcons from "../../components/header-with-icons"; // Ajuste o caminho se necessário
+import styles from "./visualize-data.module.css"; // Ajuste o caminho se necessário
+import { ArrowLeft, X } from "lucide-react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import HeaderWithIcons from "../../components/header-with-icons"
-import styles from "./visualize-data.module.css"
-import { ArrowLeft, X } from "lucide-react"
-
-// Update the Project interface to include the new fields
 interface Project {
-  id: number
-  contratante?: string
-  cliente?: string
-  contato?: string
-  endereco?: string
-  bairro?: string
-  cidade?: string
-  cep?: string
-  celular?: string
-  email?: string
-  documento?: string
-  ie?: string
-  numeroProposta?: string
-  vendedora?: string
-  data?: string
-  enderecoObra?: string
-  diametro?: string
-  diametro2?: string
-  diametro3?: string
-  unidades?: string
-  unidades2?: string
-  unidades3?: string
-  profundidade?: string
-  profundidade2?: string
-  profundidade3?: string
-  totalMetros?: string
-  previsaoDias?: string
-  diaria?: string
-  metro?: string
-  taxaTransporte?: string
-  segurancaEquipamento?: string
-  art?: string
-  observacoes?: string
-  dataInicial?: string
-  dataFinal?: string
-  [key: string]: any // Index signature for dynamic access
+  id: number; // Mapeado de Orcamentos.id_orcamento
+  idProjeto?: number; // Mapeado de Projetos.id_projeto
+  contratante?: string;
+  cliente?: string;
+  contato?: string;
+  endereco?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  cep?: string;
+  celular?: string;
+  email?: string;
+  documento?: string;
+  ie?: string;
+  numeroProposta?: string;
+  vendedora?: string;
+  data?: string;
+  enderecoObra?: string;
+  diametro?: string;
+  diametro2?: string;
+  diametro3?: string;
+  unidades?: string;
+  unidades2?: string;
+  unidades3?: string;
+  profundidade?: string;
+  profundidade2?: string;
+  profundidade3?: string;
+  totalMetros?: string;
+  previsaoDias?: string;
+  diaria?: string;
+  metro?: string;
+  taxaTransporte?: string;
+  segurancaEquipamento?: string;
+  art?: string;
+  observacoes?: string;
+  dataInicial?: string;
+  dataFinal?: string;
+  [key: string]: any;
 }
 
 export default function VisualizeDataPage() {
-  const router = useRouter()
-  const [projects, setProjects] = useState<Project[]>([])
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([])
-  const [selectedColumn, setSelectedColumn] = useState("contratante")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [selectedColumn, setSelectedColumn] = useState("contratante"); // Coluna padrão para filtro
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // State for observation modal
-  const [selectedObservation, setSelectedObservation] = useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingObservation, setEditingObservation] = useState<string>("");
+  const [currentEditingProjectId, setCurrentEditingProjectId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSavingObservation, setIsSavingObservation] = useState(false);
 
-  // Fetch data from the database
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
+      setError(null);
       try {
-        // Replace this with your actual API endpoint
-        const response = await fetch("/api/projects")
+        const response = await fetch("/api/data");
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status}`)
+          let errorPayload = { details: `Erro HTTP: ${response.status}`, message: `Erro HTTP: ${response.status}` };
+          try {
+            errorPayload = await response.json();
+          } catch (jsonError) {
+            console.warn("A resposta de erro da API não era JSON:", response);
+          }
+          throw new Error(errorPayload.details || errorPayload.message || `Erro: ${response.status}`);
         }
 
-        const data = await response.json()
-        setProjects(data)
-        setFilteredProjects(data)
-        setError(null)
+        const data: Project[] = await response.json();
+        console.log("Dados recebidos da API (/api/data):", data);
+
+        if (Array.isArray(data)) {
+          setProjects(data);
+          setFilteredProjects(data);
+        } else {
+          console.error("Os dados recebidos da API não são um array:", data);
+          throw new Error("Formato de dados inesperado recebido do servidor.");
+        }
+
       } catch (err) {
-        console.error("Failed to fetch projects:", err)
-        setError("Falha ao carregar os dados. Por favor, tente novamente.")
-
-        // For demo purposes only - remove in production
-        // Using mock data as fallback when API fails
-        const mockData = [
-          {
-            id: 1,
-            contratante: "Construtora Horizonte",
-            cliente: "João Silva",
-            contato: "Maria Oliveira",
-            endereco: "Av. Paulista, 1000",
-            bairro: "Bela Vista",
-            cidade: "São Paulo",
-            cep: "01310-100",
-            celular: "(11) 98765-4321",
-            email: "joao.silva@email.com",
-            documento: "12.345.678/0001-90",
-            ie: "123.456.789.000",
-            numeroProposta: "PROP-2023-001",
-            vendedora: "Ana Santos",
-            data: "15/03/2023",
-            enderecoObra: "Rua Augusta, 500",
-            diametro: "30cm",
-            diametro2: "25cm",
-            diametro3: null,
-            unidades: "10",
-            unidades2: "5",
-            unidades3: null,
-            profundidade: "15m",
-            profundidade2: "12m",
-            profundidade3: null,
-            totalMetros: "150m",
-            previsaoDias: "45",
-            diaria: "R$ 2.500,00",
-            metro: "R$ 350,00",
-            taxaTransporte: "R$ 1.800,00",
-            segurancaEquipamento: "Sim",
-            art: "ART123456",
-            observacoes:
-              "Terreno com acesso limitado. Necessário agendamento prévio com o cliente. Verificar condições do solo antes de iniciar a perfuração. Área com restrições de horário para obras.",
-            dataInicial: "20/04/2023",
-            dataFinal: "05/06/2023",
-          },
-          {
-            id: 2,
-            contratante: "Incorporadora Visão",
-            cliente: "Carlos Mendes",
-            contato: null,
-            endereco: "Rua Oscar Freire, 500",
-            bairro: "Jardins",
-            cidade: "São Paulo",
-            cep: "01426-001",
-            celular: "(11) 97654-3210",
-            email: "carlos.mendes@email.com",
-            documento: "23.456.789/0001-01",
-            ie: null,
-            numeroProposta: "PROP-2023-002",
-            vendedora: "Beatriz Lima",
-            data: "10/05/2023",
-            enderecoObra: "Alameda Santos, 700",
-            diametro: "40cm",
-            diametro2: "35cm",
-            diametro3: "30cm",
-            unidades: "15",
-            unidades2: "8",
-            unidades3: "6",
-            profundidade: "20m",
-            profundidade2: "18m",
-            profundidade3: "15m",
-            totalMetros: "300m",
-            previsaoDias: "60",
-            diaria: "R$ 3.000,00",
-            metro: "R$ 400,00",
-            taxaTransporte: "R$ 2.200,00",
-            segurancaEquipamento: "Sim",
-            art: "ART234567",
-            observacoes:
-              "Necessário agendamento prévio com portaria. Obra em área de tráfego intenso, verificar horários permitidos pela prefeitura. Cliente solicitou relatório diário de progresso.",
-            dataInicial: "15/06/2023",
-            dataFinal: null,
-          },
-        ]
-        setProjects(mockData)
-        setFilteredProjects(mockData)
+        console.error("Failed to fetch projects from /api/data:", err);
+        setError((err as Error).message || "Falha ao carregar os dados. Por favor, tente novamente.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
-  // Filter projects when search term or selected column changes
   useEffect(() => {
     if (searchTerm.trim() === "") {
-      setFilteredProjects(projects)
-      return
+      setFilteredProjects(projects);
+      return;
     }
-
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
     const filtered = projects.filter((project) => {
-      const value = project[selectedColumn]
-      if (value === null || value === undefined) return false
-      return value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    })
-
-    setFilteredProjects(filtered)
-  }, [searchTerm, selectedColumn, projects])
+      const value = project[selectedColumn]; // selectedColumn é a chave da interface Project
+      if (value === null || value === undefined) return false;
+      return value.toString().toLowerCase().includes(lowerCaseSearchTerm);
+    });
+    setFilteredProjects(filtered);
+  }, [searchTerm, selectedColumn, projects]);
 
   const handleBack = () => {
-    router.push("/home")
-  }
+    router.push("/home"); // Ajuste para a rota correta
+  };
 
   const handleColumnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedColumn(e.target.value)
-  }
+    setSelectedColumn(e.target.value);
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
+    setSearchTerm(e.target.value);
+  };
 
-  // Function to display a dash when data is null or undefined
   const displayValue = (value: any) => {
-    return value === null || value === undefined ? "-" : value
-  }
+    // Se a API retornar datas como objetos Date, formate-as aqui, senão, deixe como está.
+    // Exemplo se 'value' for um objeto Date e você quiser DD/MM/YYYY:
+    // if (value instanceof Date) {
+    //   return value.toLocaleDateString('pt-BR');
+    // }
+    return value === null || value === undefined || value === "" ? "-" : String(value);
+  };
 
-  // Function to open the observation modal
-  const openObservationModal = (observation: string | undefined) => {
-    if (observation) {
-      setSelectedObservation(observation)
-      setIsModalOpen(true)
+  const openObservationModal = (observationText: string | undefined, projectId?: number) => {
+    if (projectId !== undefined) {
+      const currentObservation = observationText === "-" || observationText === undefined ? "" : observationText;
+      setEditingObservation(currentObservation);
+      setCurrentEditingProjectId(projectId);
+      setIsModalOpen(true);
+    } else {
+      console.warn("Tentativa de abrir modal de observação sem ID do projeto válido.");
     }
-  }
+  };
 
-  // Function to close the observation modal
   const closeObservationModal = () => {
-    setIsModalOpen(false)
-    setSelectedObservation(null)
-  }
+    setIsModalOpen(false);
+    setEditingObservation("");
+    setCurrentEditingProjectId(null);
+  };
 
-  // Handle click outside modal to close it
+  const handleSaveObservation = async () => {
+    if (currentEditingProjectId === null) {
+      alert("ID do projeto não encontrado para salvar observação.");
+      return;
+    }
+    setIsSavingObservation(true);
+    try {
+      const response = await fetch("/api/observacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_projeto: currentEditingProjectId,
+          descricao: editingObservation,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.details || result.error || "Falha ao salvar observação");
+      }
+      setProjects(prevProjects =>
+        prevProjects.map(p =>
+          p.idProjeto === currentEditingProjectId 
+          ? { ...p, observacoes: editingObservation.trim() === "" ? undefined : editingObservation.trim() } 
+          : p
+        )
+      );
+      closeObservationModal();
+      alert("Observação salva com sucesso!");
+    } catch (err) {
+      console.error("Erro ao salvar observação:", err);
+      alert((err as Error).message || "Ocorreu um erro ao salvar a observação.");
+    } finally {
+      setIsSavingObservation(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const modal = document.getElementById("observation-modal")
+      const modal = document.getElementById("observation-modal");
       if (modal && !modal.contains(event.target as Node) && isModalOpen) {
-        closeObservationModal()
+        closeObservationModal();
       }
+    };
+    if (isModalOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-
-    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isModalOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isModalOpen]); // Adicionada dependência correta
+
+  // Define a ordem e os rótulos das colunas para exibição
+  const columnsToShow: Array<{ key: keyof Project; label: string; isSpecial?: boolean }> = [
+    { key: "contratante", label: "Contratante" },
+    { key: "cliente", label: "Cliente" },
+    { key: "contato", label: "Contato (Tel.)" },
+    { key: "endereco", label: "Endereço Cliente" },
+    { key: "bairro", label: "Bairro Cliente" },
+    { key: "cidade", label: "Cidade Cliente" },
+    { key: "estado", label: "Estado Cliente" },
+    { key: "cep", label: "CEP Cliente" },
+    { key: "celular", label: "Celular Cliente" },
+    { key: "email", label: "Email Cliente" },
+    { key: "documento", label: "CNPJ/CPF" },
+    { key: "ie", label: "IE" },
+    { key: "numeroProposta", label: "Nº Proposta" },
+    { key: "vendedora", label: "Vendedora" },
+    { key: "data", label: "Data Proposta" },
+    { key: "enderecoObra", label: "Endereço da Obra" },
+    { key: "diametro", label: "Diâmetro" },
+    { key: "unidades", label: "Unid. (Qtd)" },
+    { key: "profundidade", label: "Profundidade" },
+    { key: "totalMetros", label: "Total Metros" },
+    { key: "diametro2", label: "Diâmetro 2" },
+    { key: "unidades2", label: "Unid. 2 (Qtd)" },
+    { key: "profundidade2", label: "Profundidade 2" },
+    // { key: "totalMetros2", label: "Total Metros 2" }, // Opcional, não está no seu DDL de Projetos como campo separado para frontend
+    { key: "diametro3", label: "Diâmetro 3" },
+    { key: "unidades3", label: "Unid. 3 (Qtd)" },
+    { key: "profundidade3", label: "Profundidade 3" },
+    // { key: "totalMetros3", label: "Total Metros 3" }, // Opcional
+    { key: "previsaoDias", label: "Previsão Dias" },
+    { key: "diaria", label: "Valor Diária" },
+    { key: "metro", label: "Valor Metro" },
+    { key: "taxaTransporte", label: "Taxa Transporte" },
+    { key: "segurancaEquipamento", label: "Segurança Equip." },
+    { key: "art", label: "ART" },
+    { key: "observacoes", label: "Observações", isSpecial: true },
+    { key: "dataInicial", label: "Data Inicial Obra" },
+    { key: "dataFinal", label: "Data Final Obra" },
+  ];
+
 
   return (
     <div className={styles.container}>
@@ -248,7 +260,7 @@ export default function VisualizeDataPage() {
           <div className={styles.filterBar}>
             <div className={styles.filterGroup}>
               <span className={styles.filterLabel}>Filtrar por:</span>
-
+              {/* O select já está completo no seu código original, mantendo-o */}
               <select className={styles.columnSelect} value={selectedColumn} onChange={handleColumnChange}>
                 <option value="contratante">Contratante</option>
                 <option value="cliente">Cliente</option>
@@ -256,6 +268,7 @@ export default function VisualizeDataPage() {
                 <option value="endereco">Endereço</option>
                 <option value="bairro">Bairro</option>
                 <option value="cidade">Cidade</option>
+                <option value="estado">Estado</option>
                 <option value="cep">CEP</option>
                 <option value="celular">Celular</option>
                 <option value="email">Email</option>
@@ -297,7 +310,7 @@ export default function VisualizeDataPage() {
             </div>
           </div>
 
-          <div className={styles.tableWrapper}>
+          <div className={styles.tableWrapper}> {/* Adicione overflow-x: auto; aqui no CSS */}
             {isLoading ? (
               <div className={styles.loadingState}>Carregando dados...</div>
             ) : error ? (
@@ -306,93 +319,38 @@ export default function VisualizeDataPage() {
               <table className={styles.table}>
                 <thead className={styles.tableHeader}>
                   <tr>
-                    <th>Contratante</th>
-                    <th>Cliente</th>
-                    <th>Contato</th>
-                    <th>Endereço</th>
-                    <th>Bairro</th>
-                    <th>Cidade</th>
-                    <th>CEP</th>
-                    <th>Celular</th>
-                    <th>Email</th>
-                    <th>CNPJ/CPF</th>
-                    <th>IE</th>
-                    <th>Número da Proposta</th>
-                    <th>Vendedora</th>
-                    <th>Data</th>
-                    <th>Endereço da Obra</th>
-                    <th>Diâmetro</th>
-                    <th>Diâmetro 2</th>
-                    <th>Diâmetro 3</th>
-                    <th>Unidades</th>
-                    <th>Unidades 2</th>
-                    <th>Unidades 3</th>
-                    <th>Profundidade</th>
-                    <th>Profundidade 2</th>
-                    <th>Profundidade 3</th>
-                    <th>Total de Metros</th>
-                    <th>Previsão de Dias</th>
-                    <th>Diária</th>
-                    <th>Metro</th>
-                    <th>Taxa de Transporte</th>
-                    <th>Segurança do Equipamento</th>
-                    <th>ART</th>
-                    <th className={styles.observacoesColumn}>Observações</th>
-                    <th>Data Inicial da Obra</th>
-                    <th>Data Final da Obra</th>
+                    {columnsToShow.map(col => (
+                        <th key={col.key} className={col.key === 'observacoes' ? styles.observacoesColumn : undefined}>
+                            {col.label}
+                        </th>
+                    ))}
                   </tr>
                 </thead>
-
                 <tbody className={styles.tableBody}>
                   {filteredProjects.length > 0 ? (
                     filteredProjects.map((project) => (
-                      <tr key={project.id}>
-                        <td>{displayValue(project.contratante)}</td>
-                        <td>{displayValue(project.cliente)}</td>
-                        <td>{displayValue(project.contato)}</td>
-                        <td>{displayValue(project.endereco)}</td>
-                        <td>{displayValue(project.bairro)}</td>
-                        <td>{displayValue(project.cidade)}</td>
-                        <td>{displayValue(project.cep)}</td>
-                        <td>{displayValue(project.celular)}</td>
-                        <td>{displayValue(project.email)}</td>
-                        <td>{displayValue(project.documento)}</td>
-                        <td>{displayValue(project.ie)}</td>
-                        <td>{displayValue(project.numeroProposta)}</td>
-                        <td>{displayValue(project.vendedora)}</td>
-                        <td>{displayValue(project.data)}</td>
-                        <td>{displayValue(project.enderecoObra)}</td>
-                        <td>{displayValue(project.diametro)}</td>
-                        <td>{displayValue(project.diametro2)}</td>
-                        <td>{displayValue(project.diametro3)}</td>
-                        <td>{displayValue(project.unidades)}</td>
-                        <td>{displayValue(project.unidades2)}</td>
-                        <td>{displayValue(project.unidades3)}</td>
-                        <td>{displayValue(project.profundidade)}</td>
-                        <td>{displayValue(project.profundidade2)}</td>
-                        <td>{displayValue(project.profundidade3)}</td>
-                        <td>{displayValue(project.totalMetros)}</td>
-                        <td>{displayValue(project.previsaoDias)}</td>
-                        <td>{displayValue(project.diaria)}</td>
-                        <td>{displayValue(project.metro)}</td>
-                        <td>{displayValue(project.taxaTransporte)}</td>
-                        <td>{displayValue(project.segurancaEquipamento)}</td>
-                        <td>{displayValue(project.art)}</td>
-                        <td
-                          className={styles.observacoesCell}
-                          onClick={() => openObservationModal(project.observacoes)}
-                          title={project.observacoes ? "Clique para ver detalhes" : ""}
-                        >
-                          {project.observacoes ? "Ver observações" : "-"}
-                        </td>
-                        <td>{displayValue(project.dataInicial)}</td>
-                        <td>{displayValue(project.dataFinal)}</td>
+                      <tr key={project.id}> {/* Usando project.id (id_orcamento) como chave */}
+                        {columnsToShow.map(col => (
+                            col.isSpecial && col.key === 'observacoes' ? (
+                                <td
+                                    key={col.key}
+                                    className={styles.observacoesCell}
+                                    onClick={() => openObservationModal(project.observacoes, project.idProjeto)}
+                                    title={project.observacoes && displayValue(project.observacoes) !== "-" ? "Clique para ver/editar" : "Adicionar observação"}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    {project.observacoes && displayValue(project.observacoes) !== "-" ? "Ver/Editar" : "Adicionar"}
+                                </td>
+                            ) : (
+                                <td key={col.key}>{displayValue(project[col.key])}</td>
+                            )
+                        ))}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={34} className={styles.emptyState}>
-                        Nenhum resultado encontrado para sua busca.
+                      <td colSpan={columnsToShow.length} className={styles.emptyState}>
+                        Nenhum projeto encontrado.
                       </td>
                     </tr>
                   )}
@@ -403,22 +361,45 @@ export default function VisualizeDataPage() {
         </div>
 
         {/* Observation Modal */}
-        {isModalOpen && selectedObservation && (
+        {isModalOpen && (
           <div className={styles.modalOverlay}>
             <div id="observation-modal" className={styles.modal}>
               <div className={styles.modalHeader}>
-                <h3>Observações</h3>
+                <h3>Observações do Projeto ID: {currentEditingProjectId}</h3>
                 <button className={styles.closeButton} onClick={closeObservationModal} aria-label="Fechar modal">
                   <X size={20} />
                 </button>
               </div>
               <div className={styles.modalContent}>
-                <p>{selectedObservation}</p>
+                <textarea
+                  className={styles.observationTextarea} // Defina este estilo no seu CSS
+                  value={editingObservation}
+                  onChange={(e) => setEditingObservation(e.target.value)}
+                  rows={10}
+                  placeholder="Digite as observações aqui..."
+                  disabled={isSavingObservation}
+                />
+              </div>
+              <div className={styles.modalFooter}> {/* Defina este estilo no seu CSS */}
+                <button
+                  className={styles.cancelButton} // Defina este estilo
+                  onClick={closeObservationModal}
+                  disabled={isSavingObservation}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className={styles.saveButton} // Defina este estilo
+                  onClick={handleSaveObservation}
+                  disabled={isSavingObservation}
+                >
+                  {isSavingObservation ? "Salvando..." : "Salvar Observação"}
+                </button>
               </div>
             </div>
           </div>
         )}
       </main>
     </div>
-  )
+  );
 }
