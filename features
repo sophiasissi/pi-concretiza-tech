@@ -1,0 +1,13 @@
+Funcionalidade: Visualizar obra
+
+  Cenário: Aparece dados da obra com sucesso
+    Dado que o usuário está na tela de visualização de obra
+    Quando o usuário insere um nome de cliente válido da obra
+    E o usuário clica no botão "Visualizar"
+    Então deve mostrar todas as informações relacionadas a obra de acordo com o nome do cliente
+    
+  Cenário: Dados da obra não aparecem
+    Dado que o usuário está na tela de visualização de obra
+    Quando o usuário insere um nome de cliente inválido
+    E o usuário clica no botão "Visualizar"
+    Então uma mensagem de erro deve ser exibida e não deve ser mostrado nada relacionado a obra
