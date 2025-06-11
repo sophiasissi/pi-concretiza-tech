@@ -14,10 +14,10 @@ const pool = mysql.createPool({
 });
 
 // 2) Defina aqui seu array de usuários (ou faça um require de um JSON/CSV)
-const users = [
-  { nome_completo: 'Administrador', usuario: 'admin',   senha: 'admin123', administrador: 1 },
-  // … todos os seus registros
-];
+// const users = [
+//   { nome_completo: 'Administrador', usuario: 'admin',   senha: 'admin123', administrador: 1 },
+
+// ];
 
 async function run() {
   const conn = await pool.getConnection();

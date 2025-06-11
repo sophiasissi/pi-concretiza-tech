@@ -150,7 +150,7 @@ export default function LoginPage() {
       {/* Right side - image */}
       <div className={styles.imageSection}>
         <div className={styles.imageContainer}>
-          <img src="/placeholder.svg?height=400&width=400" alt="Welcome illustration" className={styles.image} />
+          <img src="/logo-concretiza.jpg" alt="Welcome illustration" className={styles.image} />
         </div>
       </div>
 

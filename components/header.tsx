@@ -12,8 +12,6 @@ export default function Header() {
       await fetch("/api/auth", {
         method: "DELETE",
       })
-
-      // Clear user data from localStorage
       localStorage.removeItem("user")
 
       // Redirect to login page

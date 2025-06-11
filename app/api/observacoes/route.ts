@@ -15,14 +15,13 @@ const pool = mysql.createPool({
 async function getDbConnection() {
   return pool.getConnection();
 }
-// --- Fim da Configuração da Conexão ---
 
 interface UpdateObservationRequest {
   id_projeto: number;
   descricao: string;
 }
 
-export async function POST(request: Request) { // Pode ser POST ou PUT
+export async function POST(request: Request) {
   let connection;
   try {
     const { id_projeto, descricao }: UpdateObservationRequest = await request.json();

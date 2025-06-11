@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import HeaderWithIcons from "../../components/header-with-icons"; // Ajuste o caminho se necessário
-import styles from "./visualize-data.module.css"; // Ajuste o caminho se necessário
+import HeaderWithIcons from "../../components/header-with-icons";
+import styles from "./visualize-data.module.css";
 import { ArrowLeft, X } from "lucide-react";
 
 interface Project {
-  id: number; // Mapeado de orcamentos.id_orcamento
-  idProjeto?: number; // Mapeado de projetos.id_projeto
+  id: number;
+  idProjeto?: number;
   contratante?: string;
   cliente?: string;
   contato?: string;
@@ -35,9 +35,13 @@ interface Project {
   profundidade2?: string;
   profundidade3?: string;
   totalMetros?: string;
+  totalMetros2?: string;
+  totalMetros3?: string;
   previsaoDias?: string;
   diaria?: string;
   metro?: string;
+  metro2?: string;
+  metro3?: string;
   taxaTransporte?: string;
   segurancaEquipamento?: string;
   art?: string;
@@ -51,7 +55,7 @@ export default function VisualizeDataPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [selectedColumn, setSelectedColumn] = useState("contratante"); // Coluna padrão para filtro
+  const [selectedColumn, setSelectedColumn] = useState<keyof Project>("contratante");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,143 +71,94 @@ export default function VisualizeDataPage() {
       setError(null);
       try {
         const response = await fetch("/api/data");
-
         if (!response.ok) {
           let errorPayload = { details: `Erro HTTP: ${response.status}`, message: `Erro HTTP: ${response.status}` };
           try {
             errorPayload = await response.json();
-          } catch (jsonError) {
+          } catch {
             console.warn("A resposta de erro da API não era JSON:", response);
           }
           throw new Error(errorPayload.details || errorPayload.message || `Erro: ${response.status}`);
         }
-
         const data: Project[] = await response.json();
-        console.log("Dados recebidos da API (/api/data):", data);
-
         if (Array.isArray(data)) {
           setProjects(data);
           setFilteredProjects(data);
         } else {
-          console.error("Os dados recebidos da API não são um array:", data);
           throw new Error("Formato de dados inesperado recebido do servidor.");
         }
-
       } catch (err) {
-        console.error("Failed to fetch projects from /api/data:", err);
-        setError((err as Error).message || "Falha ao carregar os dados. Por favor, tente novamente.");
+        setError((err as Error).message);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
+    if (!searchTerm.trim()) {
       setFilteredProjects(projects);
       return;
     }
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    const lower = searchTerm.toLowerCase();
     const filtered = projects.filter((project) => {
-      const value = project[selectedColumn]; // selectedColumn é a chave da interface Project
-      if (value === null || value === undefined) return false;
-      return value.toString().toLowerCase().includes(lowerCaseSearchTerm);
+      const value = project[selectedColumn];
+      if (value == null) return false;
+      return String(value).toLowerCase().includes(lower);
     });
     setFilteredProjects(filtered);
   }, [searchTerm, selectedColumn, projects]);
 
-  const handleBack = () => {
-    router.push("/home"); // Ajuste para a rota correta
-  };
+  const handleBack = () => router.push("/home");
+  const handleColumnChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedColumn(e.target.value as keyof Project);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value);
 
-  const handleColumnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedColumn(e.target.value);
-  };
+  const displayValue = (value: any) => (value === null || value === undefined || value === "" ? "-" : String(value));
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const displayValue = (value: any) => {
-    // Se a API retornar datas como objetos Date, formate-as aqui, senão, deixe como está.
-    // Exemplo se 'value' for um objeto Date e você quiser DD/MM/YYYY:
-    // if (value instanceof Date) {
-    //   return value.toLocaleDateString('pt-BR');
-    // }
-    return value === null || value === undefined || value === "" ? "-" : String(value);
-  };
-
-  const openObservationModal = (observationText: string | undefined, projectId?: number) => {
-    if (projectId !== undefined) {
-      const currentObservation = observationText === "-" || observationText === undefined ? "" : observationText;
-      setEditingObservation(currentObservation);
-      setCurrentEditingProjectId(projectId);
+  const openObservationModal = (obs: string | undefined, idProjeto?: number) => {
+    if (idProjeto !== undefined) {
+      setEditingObservation(obs && obs !== "-" ? obs : "");
+      setCurrentEditingProjectId(idProjeto);
       setIsModalOpen(true);
-    } else {
-      console.warn("Tentativa de abrir modal de observação sem ID do projeto válido.");
     }
   };
-
   const closeObservationModal = () => {
     setIsModalOpen(false);
     setEditingObservation("");
     setCurrentEditingProjectId(null);
   };
-
   const handleSaveObservation = async () => {
-    if (currentEditingProjectId === null) {
-      alert("ID do projeto não encontrado para salvar observação.");
-      return;
-    }
+    if (currentEditingProjectId == null) return;
     setIsSavingObservation(true);
     try {
-      const response = await fetch("/api/observacoes", {
+      const res = await fetch("/api/observacoes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_projeto: currentEditingProjectId,
-          descricao: editingObservation,
-        }),
+        body: JSON.stringify({ id_projeto: currentEditingProjectId, descricao: editingObservation }),
       });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.details || result.error || "Falha ao salvar observação");
-      }
-      setProjects(prevProjects =>
-        prevProjects.map(p =>
-          p.idProjeto === currentEditingProjectId 
-          ? { ...p, observacoes: editingObservation.trim() === "" ? undefined : editingObservation.trim() } 
-          : p
-        )
-      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.details || result.error || "Falha ao salvar observação");
+      setProjects(prev => prev.map(p => p.idProjeto === currentEditingProjectId ? { ...p, observacoes: editingObservation.trim() || undefined } : p));
       closeObservationModal();
       alert("Observação salva com sucesso!");
     } catch (err) {
-      console.error("Erro ao salvar observação:", err);
-      alert((err as Error).message || "Ocorreu um erro ao salvar a observação.");
+      alert((err as Error).message);
     } finally {
       setIsSavingObservation(false);
     }
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       const modal = document.getElementById("observation-modal");
-      if (modal && !modal.contains(event.target as Node) && isModalOpen) {
-        closeObservationModal();
-      }
+      if (modal && !modal.contains(e.target as Node) && isModalOpen) closeObservationModal();
     };
-    if (isModalOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isModalOpen]); // Adicionada dependência correta
+    if (isModalOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isModalOpen]);
 
-  // Define a ordem e os rótulos das colunas para exibição
+  // Colunas para exibição, incluindo novos campos metro2/3 e totalMetros2/3
   const columnsToShow: Array<{ key: keyof Project; label: string; isSpecial?: boolean }> = [
     { key: "contratante", label: "Contratante" },
     { key: "cliente", label: "Cliente" },
@@ -228,14 +183,16 @@ export default function VisualizeDataPage() {
     { key: "diametro2", label: "Diâmetro 2" },
     { key: "unidades2", label: "Unid. 2 (Qtd)" },
     { key: "profundidade2", label: "Profundidade 2" },
-    // { key: "totalMetros2", label: "Total Metros 2" }, // Opcional, não está no seu DDL de projetos como campo separado para frontend
+    { key: "totalMetros2", label: "Total Metros 2" },
     { key: "diametro3", label: "Diâmetro 3" },
     { key: "unidades3", label: "Unid. 3 (Qtd)" },
     { key: "profundidade3", label: "Profundidade 3" },
-    // { key: "totalMetros3", label: "Total Metros 3" }, // Opcional
+    { key: "totalMetros3", label: "Total Metros 3" },
     { key: "previsaoDias", label: "Previsão Dias" },
     { key: "diaria", label: "Valor Diária" },
     { key: "metro", label: "Valor Metro" },
+    { key: "metro2", label: "Valor Metro 2" },
+    { key: "metro3", label: "Valor Metro 3" },
     { key: "taxaTransporte", label: "Taxa Transporte" },
     { key: "segurancaEquipamento", label: "Segurança Equip." },
     { key: "art", label: "ART" },
@@ -244,59 +201,27 @@ export default function VisualizeDataPage() {
     { key: "dataFinal", label: "Data Final Obra" },
   ];
 
-
   return (
     <div className={styles.container}>
       <HeaderWithIcons />
       <main className={styles.content}>
         <div className={styles.titleContainer}>
-          <button className={styles.backButton} onClick={handleBack} aria-label="Voltar para a página inicial">
+          <button className={styles.backButton} onClick={handleBack} aria-label="Voltar">
             <ArrowLeft />
           </button>
-          <h1 className={styles.title}>Visualize todas as obras já realizadas e filtre a tabela como quiser!</h1>
+          <h1 className={styles.title}>
+            Visualize todas as obras já realizadas e filtre como quiser!
+          </h1>
         </div>
 
         <div className={styles.tableContainer}>
           <div className={styles.filterBar}>
             <div className={styles.filterGroup}>
               <span className={styles.filterLabel}>Filtrar por:</span>
-              {/* O select já está completo no seu código original, mantendo-o */}
               <select className={styles.columnSelect} value={selectedColumn} onChange={handleColumnChange}>
-                <option value="contratante">Contratante</option>
-                <option value="cliente">Cliente</option>
-                <option value="contato">Contato</option>
-                <option value="endereco">Endereço</option>
-                <option value="bairro">Bairro</option>
-                <option value="cidade">Cidade</option>
-                <option value="estado">Estado</option>
-                <option value="cep">CEP</option>
-                <option value="celular">Celular</option>
-                <option value="email">Email</option>
-                <option value="documento">CNPJ/CPF</option>
-                <option value="ie">IE</option>
-                <option value="numeroProposta">Número da Proposta</option>
-                <option value="vendedora">Vendedora</option>
-                <option value="data">Data</option>
-                <option value="enderecoObra">Endereço da Obra</option>
-                <option value="diametro">Diâmetro</option>
-                <option value="diametro2">Diâmetro 2</option>
-                <option value="diametro3">Diâmetro 3</option>
-                <option value="unidades">Unidades</option>
-                <option value="unidades2">Unidades 2</option>
-                <option value="unidades3">Unidades 3</option>
-                <option value="profundidade">Profundidade</option>
-                <option value="profundidade2">Profundidade 2</option>
-                <option value="profundidade3">Profundidade 3</option>
-                <option value="totalMetros">Total de Metros</option>
-                <option value="previsaoDias">Previsão de Dias</option>
-                <option value="diaria">Diária</option>
-                <option value="metro">Metro</option>
-                <option value="taxaTransporte">Taxa de Transporte</option>
-                <option value="segurancaEquipamento">Segurança do Equipamento</option>
-                <option value="art">ART</option>
-                <option value="observacoes">Observações</option>
-                <option value="dataInicial">Data Inicial da Obra</option>
-                <option value="dataFinal">Data Final da Obra</option>
+                {columnsToShow.map(col => (
+                  <option key={col.key} value={col.key}>{col.label}</option>
+                ))}
               </select>
             </div>
             <div className={styles.filterGroup}>
@@ -310,7 +235,7 @@ export default function VisualizeDataPage() {
             </div>
           </div>
 
-          <div className={styles.tableWrapper}> {/* Adicione overflow-x: auto; aqui no CSS */}
+          <div className={styles.tableWrapper}>
             {isLoading ? (
               <div className={styles.loadingState}>Carregando dados...</div>
             ) : error ? (
@@ -320,34 +245,32 @@ export default function VisualizeDataPage() {
                 <thead className={styles.tableHeader}>
                   <tr>
                     {columnsToShow.map(col => (
-                        <th key={col.key} className={col.key === 'observacoes' ? styles.observacoesColumn : undefined}>
-                            {col.label}
-                        </th>
+                      <th key={col.key} className={col.isSpecial ? styles.observacoesColumn : undefined}>
+                        {col.label}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className={styles.tableBody}>
-                  {filteredProjects.length > 0 ? (
-                    filteredProjects.map((project) => (
-                      <tr key={project.id}> {/* Usando project.id (id_orcamento) como chave */}
-                        {columnsToShow.map(col => (
-                            col.isSpecial && col.key === 'observacoes' ? (
-                                <td
-                                    key={col.key}
-                                    className={styles.observacoesCell}
-                                    onClick={() => openObservationModal(project.observacoes, project.idProjeto)}
-                                    title={project.observacoes && displayValue(project.observacoes) !== "-" ? "Clique para ver/editar" : "Adicionar observação"}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    {project.observacoes && displayValue(project.observacoes) !== "-" ? "Ver/Editar" : "Adicionar"}
-                                </td>
-                            ) : (
-                                <td key={col.key}>{displayValue(project[col.key])}</td>
-                            )
-                        ))}
-                      </tr>
-                    ))
-                  ) : (
+                  {filteredProjects.length ? filteredProjects.map(project => (
+                    <tr key={project.id}>
+                      {columnsToShow.map(col => (
+                        col.isSpecial && col.key === "observacoes" ? (
+                          <td
+                            key={col.key}
+                            className={styles.observacoesCell}
+                            onClick={() => openObservationModal(project.observacoes, project.idProjeto)}
+                            title={project.observacoes && displayValue(project.observacoes) !== "-" ? "Clique para ver/editar" : "Adicionar observação"}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {project.observacoes && displayValue(project.observacoes) !== "-" ? "Ver/Editar" : "Adicionar"}
+                          </td>
+                        ) : (
+                          <td key={col.key}>{displayValue(project[col.key])}</td>
+                        )
+                      ))}
+                    </tr>
+                  )) : (
                     <tr>
                       <td colSpan={columnsToShow.length} className={styles.emptyState}>
                         Nenhum projeto encontrado.
@@ -360,7 +283,6 @@ export default function VisualizeDataPage() {
           </div>
         </div>
 
-        {/* Observation Modal */}
         {isModalOpen && (
           <div className={styles.modalOverlay}>
             <div id="observation-modal" className={styles.modal}>
@@ -372,29 +294,13 @@ export default function VisualizeDataPage() {
               </div>
               <div className={styles.modalContent}>
                 <textarea
-                  className={styles.observationTextarea} // Defina este estilo no seu CSS
+                  className={styles.observationTextarea}
                   value={editingObservation}
-                  onChange={(e) => setEditingObservation(e.target.value)}
-                  rows={10}
+                  onChange={e => setEditingObservation(e.target.value)}
+                  rows={10} 
                   placeholder="Digite as observações aqui..."
                   disabled={isSavingObservation}
                 />
-              </div>
-              <div className={styles.modalFooter}> {/* Defina este estilo no seu CSS */}
-                <button
-                  className={styles.cancelButton} // Defina este estilo
-                  onClick={closeObservationModal}
-                  disabled={isSavingObservation}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className={styles.saveButton} // Defina este estilo
-                  onClick={handleSaveObservation}
-                  disabled={isSavingObservation}
-                >
-                  {isSavingObservation ? "Salvando..." : "Salvar Observação"}
-                </button>
               </div>
             </div>
           </div>
