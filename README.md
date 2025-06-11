@@ -6,7 +6,7 @@
 ### Desenvolvimento front-end: 
 [![Front-End](https://skillicons.dev/icons?i=react)](https://skillicons.dev)
 ### Desenvolvimento back-end: 
-[![Backe-End](https://skillicons.dev/icons?i=js)](https://skillicons.dev)
+[![Backe-End](https://skillicons.dev/icons?i=ts)](https://skillicons.dev)
 ### Infraestrutura:
 [![Infra](https://skillicons.dev/icons?i=mysql,figma&theme=dark)](https://skillicons.dev)
 
