@@ -538,7 +538,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     );
   };
 
-  // Close preview
   const closePreview = () => {
     setShowPreview(false);
   };

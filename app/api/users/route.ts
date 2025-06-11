@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import bcrypt from 'bcryptjs';
 import mysql, { RowDataPacket, OkPacket } from 'mysql2/promise';
 
-// --- Configuração da Conexão com o MySQL (MANTENHA A SUA CONFIGURAÇÃO) ---
+
 const pool = mysql.createPool({
     host:  'localhost',
     user:  'root',
-    password:  '579924', // Substitua pela sua senha ou variável de ambiente
-    database: 'pi_concretiza', // Substitua pelo nome do seu banco ou variável de ambiente
+    password:  '579924', 
+    database: 'pi_concretiza', 
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -17,22 +17,21 @@ async function getDbConnection() {
   
   return pool.getConnection();
 }
-// --- Fim da Configuração da Conexão ---
+
 
 interface UserData {
-  nomeCompleto: string; // Mantém camelCase aqui para o objeto JS/JSON vindo do frontend
+  nomeCompleto: string; 
   usuario: string;
   senha: string;
   administrador: boolean;
 }
 
-// Definição da interface para o usuário do banco de dados
 interface UserFromDb extends RowDataPacket {
   id: number;
-  nome_completo: string; // Corresponde à coluna do DB (snake_case)
+  nome_completo: string; 
   usuario: string;
   administrador: boolean;
-  // dataCriacao foi removida conforme estrutura da tabela
+
 }
 
 
@@ -52,7 +51,6 @@ function isAdmin() {
   }
 }
 
-// Obter todos os usuários (apenas administrador)
 export async function GET() {
   console.log("GET /api/users: Verificando permissão de admin...");
   if (!isAdmin()) {
@@ -64,17 +62,15 @@ export async function GET() {
   let connection;
   try {
     connection = await getDbConnection();
-    // Ajuste: Nome da tabela para 'usuarios' e coluna 'nome_completo'
     const [rows] = await connection.execute<UserFromDb[]>(
       "SELECT id, nome_completo, usuario, administrador FROM usuarios"
     );
 
-    // Mapear para camelCase para o frontend, se o frontend esperar nomeCompleto
     const usersForFrontend = rows.map(user => ({
         id: user.id,
-        nome_completo: user.nome_completo, // Mapeia de nome_completo (DB) para nomeCompleto (JS)
+        nome_completo: user.nome_completo,
         usuario: user.usuario,
-        administrador: !!user.administrador // Garante que seja booleano
+        administrador: !!user.administrador 
     }));
 
     console.log("GET /api/users: Usuários buscados:", usersForFrontend.length);
@@ -87,7 +83,6 @@ export async function GET() {
   }
 }
 
-// Criar um novo usuário (apenas administrador)
 export async function POST(request: Request) {
   console.log("POST /api/users: Verificando permissão de admin...");
   if (!isAdmin()) {
@@ -113,7 +108,6 @@ export async function POST(request: Request) {
     connection = await getDbConnection();
     await connection.beginTransaction();
 
-    // Ajuste: Nome da tabela para 'usuarios'
     const [existingUsers] = await connection.execute<RowDataPacket[]>(
       "SELECT usuario FROM usuarios WHERE usuario = ?",
       [userData.usuario]
