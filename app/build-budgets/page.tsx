@@ -3,6 +3,10 @@
 import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import ExcelJS from "exceljs";
 import HeaderWithIcons from "../../components/header-with-icons";
 import styles from "./build-budgets.module.css";
 import {
@@ -14,7 +18,6 @@ import {
   X,
   FileSpreadsheet,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 
 // Define the interface for the form data
 interface BudgetFormData {
@@ -67,6 +70,8 @@ interface BudgetFormData {
 
   // Observations
   observacoes: string;
+
+  valorTotalEstimado: string;
 }
 
 export default function BuildBudgetsPage() {
@@ -121,6 +126,7 @@ export default function BuildBudgetsPage() {
 
     // Observations
     observacoes: "",
+    valorTotalEstimado: "",
   });
 
   // State to track visibility of additional rows
@@ -474,36 +480,81 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     }
   };
 
-  const handleSaveExcel = () => {
-    // 1) Pega e limpa o nome do cliente
-    const cliente = formData.cliente.trim();
+  //Função para salvar o orçamento no template feito no Excel
+  const handleSaveExcel = async () => {
+  const clienteSlug = formData.cliente.trim().replace(/\s+/g, "_");
+  const res = await fetch("/template_orcamento.xlsx");
+  console.log("Tentei buscar:", res.url, "– status:", res.status);
+  if (!res.ok) throw new Error("Não foi possível carregar o template Excel.");
+  const arrayBuffer = await res.arrayBuffer();
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(arrayBuffer);
+  const sheet = workbook.getWorksheet("Planilha1") || workbook.worksheets[0];
 
-    // 2) Se estiver vazio, avisa e sai
-    if (!cliente) {
-      alert("Por favor, preencha o campo Cliente antes de salvar o Excel.");
-      return;
-    }
+  sheet.getCell("C10").value = formData.numeroProposta;
+  sheet.getCell("C11").value = formData.contratante;
+  sheet.getCell("C12").value = formData.cliente;
+  sheet.getCell("J12").value = formData.contato;
+  sheet.getCell("C13").value = formData.email;
+  sheet.getCell("C14").value = formData.endereco;
+  sheet.getCell("J14").value = formData.bairro;
+  sheet.getCell("C15").value = formData.cidade;
+  sheet.getCell("G15").value = formData.estado;
+  sheet.getCell("J15").value = formData.cep;
+  sheet.getCell("J13").value = formData.documento;
+  sheet.getCell("C16").value = formData.ie || "-";
+  sheet.getCell("G13").value = formData.celular;
+  sheet.getCell("G10").value = formData.vendedora;
+  sheet.getCell("J10").value = new Date(formData.data);
+  sheet.getCell("C18").value = formData.enderecoObra;
+  sheet.getCell("I23").value = formData.previsaoDias;
+  sheet.getCell("D23").value = Number(formData.profundidade);
+  sheet.getCell("C23").value = Number(formData.unidade);
+  sheet.getCell("B23").value = Number(formData.diametro);
+  sheet.getCell("E23").value = Number(formData.totalMetros);
+  sheet.getCell("D24").value = Number(formData.profundidade2);
+  sheet.getCell("C24").value = Number(formData.unidade2);
+  sheet.getCell("B24").value = Number(formData.diametro2);
+  sheet.getCell("E24").value = Number(formData.totalMetros2);
+  sheet.getCell("D25").value = Number(formData.profundidade3);
+  sheet.getCell("C25").value = Number(formData.unidade3);
+  sheet.getCell("B25").value = Number(formData.diametro3);
+  sheet.getCell("E25").value = Number(formData.totalMetros3);
+  sheet.getCell("F22").value = formData.paymentOption;
+  sheet.getCell("F23").value = parseFloat(formData.valorDiaria) || 0;
+  sheet.getCell("F23").value = parseFloat(formData.valorPorMetro1) || 0;
+  sheet.getCell("F24").value = parseFloat(formData.valorPorMetro2) || 0;
+  sheet.getCell("F25").value = parseFloat(formData.valorPorMetro3) || 0;
+  sheet.getCell("C30").value = parseFloat(formData.taxaTransporte) || 0;
+  sheet.getCell("F30").value = parseFloat(formData.segurancaEquipamento) || 0;
+  sheet.getCell("J30").value = parseFloat(formData.art) || 0;
+  sheet.getCell("B35").value = formData.observacoes;
+  sheet.getCell("I32").value = formData.valorTotalEstimado;
 
-    // 3) Gera o slug
-    const clienteSlug = cliente.replace(/\s+/g, "_");
-
-    // 4) Cria o workbook e a sheet
-    const wb = XLSX.utils.book_new();
-    const headers = Object.keys(formData);
-    const values = Object.values(formData);
-    headers.push("Valor Total Estimado");
-    values.push(calculateTotal());
-    const ws = XLSX.utils.aoa_to_sheet([headers, values]);
-    XLSX.utils.book_append_sheet(wb, ws, "Orçamento");
-
-    // 5) Escreve o arquivo com o slug do cliente
-    XLSX.writeFile(wb, `orcamento_${clienteSlug}.xlsx`);
+  const buf = await workbook.xlsx.writeBuffer();
+  saveAs(
+      new Blob([buf], { type: "application/octet-stream" }),
+      `orcamento_${clienteSlug}.xlsx`
+    );
   };
 
   // Close preview
   const closePreview = () => {
     setShowPreview(false);
   };
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const handlePreview = (e: React.MouseEvent) => {
+  e.preventDefault();
+  if (formRef.current?.reportValidity()) {
+    const total = calculateTotal();
+    setFormData(prev => ({
+      ...prev,
+      valorTotalEstimado: total
+    }));
+    setShowPreview(true);
+  }
+};
 
   return (
     <div className={styles.container}>
@@ -520,7 +571,7 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
           <h1 className={styles.title}>Construa um Orçamento aqui!</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
           {/* First Section - Dados do Cliente */}
           <div className={styles.section}>
             <div className={styles.sectionDivider} />
@@ -1293,16 +1344,12 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
 
           <div className={styles.formActions}>
             <button
-              type="button"
-              className={styles.previewButton}
-              onClick={() => setShowPreview(true)}
+              type="submit"
+              className={styles.submitButton}
+              onClick={handlePreview}
             >
               <FileText size={20} />
               Visualizar Orçamento
-            </button>
-            <button type="submit" className={styles.submitButton}>
-              <Calculator size={20} />
-              Salvar Orçamento
             </button>
           </div>
         </form>

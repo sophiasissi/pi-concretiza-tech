@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:users": "node scripts/seed-users.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -45,7 +46,10 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "8.5.1",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "mysql2": "^3.14.1",

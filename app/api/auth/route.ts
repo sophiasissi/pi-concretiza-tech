@@ -10,8 +10,8 @@ import mysql, { RowDataPacket } from 'mysql2/promise'; // Apenas RowDataPacket �
 const pool = mysql.createPool({
   host:  'localhost',
   user: 'root',
-  password: '', // Use sua senha correta ou variável de ambiente
-  database: 'meu_banco_de_dados', // Use seu banco de dados ou variável de ambiente
+  password: '579924', // Use sua senha correta ou variável de ambiente
+  database: 'pi_concretiza', // Use seu banco de dados ou variável de ambiente
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -31,7 +31,7 @@ interface LoginRequest {
 interface UserFromDbWithPassword extends RowDataPacket {
   id: number;
   usuario: string;
-  senha_hash: string; // Supondo que a coluna da senha no DB seja 'senha' ou 'senha_hash'
+  senha: string; // Supondo que a coluna da senha no DB seja 'senha' ou 'senha_hash'
   administrador: boolean | number; // MySQL pode retornar 0 ou 1 para boolean
   // nome_completo?: string; // Opcional, se quiser usar no token/resposta
 }
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     // 1. Validar as credenciais contra o banco de dados
     const [rows] = await connection.execute<UserFromDbWithPassword[]>(
-      "SELECT id, usuario, senha AS senha_hash, administrador FROM usuarios WHERE usuario = ?",
+      "SELECT id, usuario, senha AS senha, administrador FROM usuarios WHERE usuario = ?",
       [data.username]
     );
 
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const userFromDb = rows[0];
 
     // 2. Verificar se a senha corresponde (usando bcrypt)
-    const passwordMatch = await bcrypt.compare(data.password, userFromDb.senha_hash);
+    const passwordMatch = await bcrypt.compare(data.password, userFromDb.senha);
 
     if (!passwordMatch) {
       console.log(`Tentativa de login falhou: Senha incorreta para o usuário '${data.username}'.`);

@@ -7,8 +7,8 @@ import styles from "./visualize-data.module.css"; // Ajuste o caminho se necess�
 import { ArrowLeft, X } from "lucide-react";
 
 interface Project {
-  id: number; // Mapeado de Orcamentos.id_orcamento
-  idProjeto?: number; // Mapeado de Projetos.id_projeto
+  id: number; // Mapeado de orcamentos.id_orcamento
+  idProjeto?: number; // Mapeado de projetos.id_projeto
   contratante?: string;
   cliente?: string;
   contato?: string;
@@ -228,7 +228,7 @@ export default function VisualizeDataPage() {
     { key: "diametro2", label: "Diâmetro 2" },
     { key: "unidades2", label: "Unid. 2 (Qtd)" },
     { key: "profundidade2", label: "Profundidade 2" },
-    // { key: "totalMetros2", label: "Total Metros 2" }, // Opcional, não está no seu DDL de Projetos como campo separado para frontend
+    // { key: "totalMetros2", label: "Total Metros 2" }, // Opcional, não está no seu DDL de projetos como campo separado para frontend
     { key: "diametro3", label: "Diâmetro 3" },
     { key: "unidades3", label: "Unid. 3 (Qtd)" },
     { key: "profundidade3", label: "Profundidade 3" },

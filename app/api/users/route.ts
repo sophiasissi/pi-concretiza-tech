@@ -7,8 +7,8 @@ import mysql, { RowDataPacket, OkPacket } from 'mysql2/promise';
 const pool = mysql.createPool({
     host:  'localhost',
     user:  'root',
-    password:  '', // Substitua pela sua senha ou variável de ambiente
-    database: 'meu_banco_de_dados', // Substitua pelo nome do seu banco ou variável de ambiente
+    password:  '579924', // Substitua pela sua senha ou variável de ambiente
+    database: 'pi_concretiza', // Substitua pelo nome do seu banco ou variável de ambiente
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -72,7 +72,7 @@ export async function GET() {
     // Mapear para camelCase para o frontend, se o frontend esperar nomeCompleto
     const usersForFrontend = rows.map(user => ({
         id: user.id,
-        nomeCompleto: user.nome_completo, // Mapeia de nome_completo (DB) para nomeCompleto (JS)
+        nome_completo: user.nome_completo, // Mapeia de nome_completo (DB) para nomeCompleto (JS)
         usuario: user.usuario,
         administrador: !!user.administrador // Garante que seja booleano
     }));
