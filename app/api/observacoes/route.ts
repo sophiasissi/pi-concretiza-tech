@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import mysql, { OkPacket, ResultSetHeader } from 'mysql2/promise'; // ResultSetHeader para UPDATE
+import mysql, { OkPacket, ResultSetHeader } from 'mysql2/promise';
 
-// --- Configuração da Conexão com o MySQL (COPIE DE UMA ROTA FUNCIONAL) ---
+
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '579924', // Sua senha correta
-  database: process.env.MYSQL_DATABASE || 'pi_concretiza', // Seu banco
+  password: process.env.MYSQL_PASSWORD || '579924',
+  database: process.env.MYSQL_DATABASE || 'pi_concretiza',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -36,17 +36,12 @@ export async function POST(request: Request) {
     await connection.beginTransaction();
 
     if (newDescricao === "") {
-      // Se a descrição nova é vazia, remove todas as observações para o projeto
       const [deleteResult] = await connection.execute<ResultSetHeader>(
         "DELETE FROM observacoes WHERE id_projeto = ?",
         [id_projeto]
       );
       console.log(`Observações para o projeto ID ${id_projeto} deletadas: ${deleteResult.affectedRows} linha(s) afetada(s).`);
     } else {
-      // Tenta atualizar observações existentes para este projeto
-      // Isso atualizará TODAS as linhas de observação para este id_projeto com a nova descrição.
-      // Se você pretende que um projeto tenha apenas UMA linha de observação, esta abordagem
-      // efetivamente "sobrescreve" o texto dessa observação (ou observações).
       const [updateResult] = await connection.execute<ResultSetHeader>(
         "UPDATE observacoes SET descricao = ? WHERE id_projeto = ?",
         [newDescricao, id_projeto]
@@ -55,9 +50,8 @@ export async function POST(request: Request) {
       console.log(`Tentativa de UPDATE para projeto ID ${id_projeto}: ${updateResult.affectedRows} linha(s) atualizada(s).`);
 
       if (updateResult.affectedRows === 0) {
-        // Nenhuma linha foi atualizada, então não existia observação para este projeto. Inserir nova.
         await connection.execute<OkPacket>(
-          "INSERT INTO observacoes (id_projeto, descricao) VALUES (?, ?)", // Query INSERT corrigida
+          "INSERT INTO observacoes (id_projeto, descricao) VALUES (?, ?)", 
           [id_projeto, newDescricao]
         );
         console.log(`Nova observação inserida para o projeto ID ${id_projeto}.`);
