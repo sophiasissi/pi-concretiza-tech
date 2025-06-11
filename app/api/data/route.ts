@@ -5,8 +5,8 @@ import mysql, { RowDataPacket } from 'mysql2/promise';
 const pool = mysql.createPool({
   host: process.env.MYSQL_HOST || 'localhost',
   user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '', // Sua senha correta
-  database: process.env.MYSQL_DATABASE || 'meu_banco_de_dados', // Seu banco de dados
+  password: process.env.MYSQL_PASSWORD || '579924', // Sua senha correta
+  database: process.env.MYSQL_DATABASE || 'pi_concretiza', // Seu banco de dados
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -30,8 +30,8 @@ export async function GET(request: Request) {
           o.id_orcamento AS id,
           p.id_projeto AS idProjeto,         -- ID do Projeto, crucial para editar observações
           c.nome AS cliente,
-          c.nome AS contratante,             -- Ajuste se 'contratante' tiver uma fonte diferente de Clientes.nome
-          c.contato,                         -- Telefone de Clientes.contato
+          c.nome AS contratante,             -- Ajuste se 'contratante' tiver uma fonte diferente de clientes.nome
+          c.contato,                         -- Telefone de clientes.contato
           c.endereco,
           c.bairro,
           c.cidade,
@@ -65,13 +65,13 @@ export async function GET(request: Request) {
           NULL AS dataInicial, -- Se tiver no DB (ex: p.data_inicio_prevista), substitua NULL
           NULL AS dataFinal    -- Se tiver no DB (ex: p.data_termino_prevista), substitua NULL
       FROM
-          Orcamentos o
+          orcamentos o
       JOIN
-          Clientes c ON o.id_cliente = c.id_cliente
+          clientes c ON o.id_cliente = c.id_cliente
       JOIN
-          Projetos p ON o.id_orcamento = p.id_orcamento
+          projetos p ON o.id_orcamento = p.id_orcamento
       LEFT JOIN
-          Observacoes obs ON p.id_projeto = obs.id_projeto
+          observacoes obs ON p.id_projeto = obs.id_projeto
       GROUP BY
           o.id_orcamento, p.id_projeto, -- Chaves primárias das tabelas principais no JOIN e não agregadas
           c.id_cliente, c.nome, c.contato, c.endereco, c.bairro, c.cidade, c.estado, c.cep, c.celular, c.email, c.cpf_cnpj, c.inscricao_estadual,
