@@ -6,7 +6,7 @@
 
 .content {
   flex: 1;
-  padding: 50px 120px 120px 120px; /* Top Right Bottom Left */
+  padding: 50px 120px 120px 120px;
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;

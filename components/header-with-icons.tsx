@@ -9,7 +9,6 @@ export default function HeaderWithIcons() {
   const router = useRouter()
   const [isAdmin, setIsAdmin] = useState(false)
 
-  // Check if user is admin on component mount
   useEffect(() => {
     const checkAdminStatus = () => {
       try {
@@ -25,8 +24,6 @@ export default function HeaderWithIcons() {
     }
 
     checkAdminStatus()
-
-    // Listen for storage events (in case user logs in/out in another tab)
     window.addEventListener("storage", checkAdminStatus)
 
     return () => {

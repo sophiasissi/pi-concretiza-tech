@@ -174,7 +174,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 2000px; /* Increased from 1400px to accommodate more columns */
+  min-width: 2000px;
 }
 
 .tableHeader {
@@ -192,9 +192,9 @@
   white-space: nowrap;
 }
 
-/* Style for the observations column */
+
 .observacoesColumn {
-  width: 150px; /* Fixed width for observations column */
+  width: 150px;
 }
 
 .tableBody tr {
@@ -212,7 +212,6 @@
   white-space: nowrap;
 }
 
-/* Style for the observations cell */
 .observacoesCell {
   width: 150px;
   max-width: 150px;
@@ -229,7 +228,6 @@
   background-color: #f0f0f0;
 }
 
-/* Modal styles */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -407,7 +405,6 @@
   }
 }
 
-/* BACKDROP */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -417,7 +414,6 @@
   z-index: 1000;
 }
 
-/* CONTAINER DO MODAL */
 .modal {
   background: #fff;
   border-radius: 1rem;
@@ -430,7 +426,6 @@
   overflow: hidden;
 }
 
-/* ANIMAÇÃO DE APARECER */
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -442,7 +437,6 @@
   }
 }
 
-/* CABEÇALHO */
 .modalHeader {
   padding: 1rem 1.5rem;
   background: #323268;
@@ -457,7 +451,6 @@
   font-size: 1.25rem;
 }
 
-/* BOTÃO DE FECHAR */
 .closeButton {
   background: transparent;
   border: none;
@@ -470,7 +463,6 @@
   transform: scale(1.1);
 }
 
-/* CONTEÚDO */
 .modalContent {
   padding: 1rem 1.5rem;
   background: #f9f9fb;
@@ -493,7 +485,6 @@
   box-shadow: 0 0 0 2px rgba(50, 50, 104, 0.2);
 }
 
-/* RODAPÉ */
 .modalFooter {
   padding: 1rem 1.5rem;
   background: #fff;
@@ -502,7 +493,6 @@
   gap: 0.5rem;
 }
 
-/* BOTÕES */
 .cancelButton,
 .saveButton {
   padding: 0.5rem 1rem;

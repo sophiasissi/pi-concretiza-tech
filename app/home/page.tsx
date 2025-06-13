@@ -10,7 +10,6 @@ export default function HomePage() {
   const router = useRouter()
   const [isAdmin, setIsAdmin] = useState(false)
 
-  // Check if user is admin on component mount
   useEffect(() => {
     try {
       const userData = localStorage.getItem("user")

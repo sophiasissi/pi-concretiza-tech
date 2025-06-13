@@ -121,13 +121,12 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(userData.senha, 10);
 
-    // Ajuste: Nome da tabela 'usuarios', coluna 'nome_completo' na query SQL
     const sql = `
       INSERT INTO usuarios (nome_completo, usuario, senha, administrador)
       VALUES (?, ?, ?, ?)
     `;
     const [result] = await connection.execute<OkPacket>(sql, [
-      userData.nomeCompleto, // O valor JS ainda é userData.nomeCompleto
+      userData.nomeCompleto, 
       userData.usuario,
       hashedPassword,
       userData.administrador || false,
@@ -136,7 +135,6 @@ export async function POST(request: Request) {
     const insertedUserId = result.insertId;
     console.log("POST /api/users: Novo usuário inserido, ID:", insertedUserId);
 
-    // Ajuste: Nome da tabela 'usuarios' e coluna 'nome_completo' na query SQL
     const [newUserDetailsRows] = await connection.execute<UserFromDb[]>(
         "SELECT id, nome_completo, usuario, administrador FROM usuarios WHERE id = ?",
         [insertedUserId]
@@ -150,12 +148,11 @@ export async function POST(request: Request) {
     }
     const newUserDetails = newUserDetailsRows[0];
 
-    // Mapear para camelCase para o frontend, se necessário
     const userForFrontend = {
         id: newUserDetails.id,
-        nomeCompleto: newUserDetails.nome_completo, // Mapeia de nome_completo (DB) para nomeCompleto (JS)
+        nomeCompleto: newUserDetails.nome_completo,
         usuario: newUserDetails.usuario,
-        administrador: !!newUserDetails.administrador // Garante que seja booleano
+        administrador: !!newUserDetails.administrador 
     };
     console.log("POST /api/users: Usuário cadastrado com sucesso:", userForFrontend);
 
@@ -168,7 +165,6 @@ export async function POST(request: Request) {
   } catch (error: any) {
     if (connection) await connection.rollback();
     console.error("POST /api/users: Erro ao cadastrar usuário:", error);
-    // Adiciona o stack trace ao log do servidor para melhor depuração
     if (error.stack) {
         console.error(error.stack);
     }

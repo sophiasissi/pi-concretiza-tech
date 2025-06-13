@@ -158,7 +158,6 @@ export default function VisualizeDataPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isModalOpen]);
 
-  // Colunas para exibição, incluindo novos campos metro2/3 e totalMetros2/3
   const columnsToShow: Array<{ key: keyof Project; label: string; isSpecial?: boolean }> = [
     { key: "contratante", label: "Contratante" },
     { key: "cliente", label: "Cliente" },

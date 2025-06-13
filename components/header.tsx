@@ -8,13 +8,11 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      // Call the logout API endpoint
       await fetch("/api/auth", {
         method: "DELETE",
       })
       localStorage.removeItem("user")
 
-      // Redirect to login page
       router.push("/")
     } catch (error) {
       console.error("Logout error:", error)

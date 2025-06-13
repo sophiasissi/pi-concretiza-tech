@@ -1,9 +1,7 @@
-// scripts/seed-users.js
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const mysql  = require('mysql2/promise');
 
-// 1) Configure a pool igual ao seu Next.js (use variáveis de ambiente)
 const pool = mysql.createPool({
   host:     process.env.MYSQL_HOST,
   user:     process.env.MYSQL_USER,
@@ -13,7 +11,6 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 });
 
-// 2) Defina aqui seu array de usuários (ou faça um require de um JSON/CSV)
 // const users = [
 //   { nome_completo: 'Administrador', usuario: 'admin',   senha: 'admin123', administrador: 1 },
 

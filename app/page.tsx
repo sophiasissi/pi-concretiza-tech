@@ -21,19 +21,14 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Handle responsive detection
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768)
     }
 
-    // Initial check
     handleResize()
 
-    // Add event listener
     window.addEventListener("resize", handleResize)
-
-    // Cleanup
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
@@ -68,10 +63,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Falha na autenticação")
       }
 
-      // Store user data in localStorage for client-side access control
       localStorage.setItem("user", JSON.stringify(data.user))
-
-      // Navigate to home page after successful login
       router.push("/home")
     } catch (error) {
       console.error("Login error:", error)
@@ -87,7 +79,6 @@ export default function LoginPage() {
 
   return (
     <div className={styles.container}>
-      {/* Left side - login form */}
       <div className={`${styles.formSection} ${isMobile ? styles.mobile : ""}`}>
         <Card className={styles.card}>
           <CardHeader className={styles.cardHeader}>
@@ -146,15 +137,12 @@ export default function LoginPage() {
           </form>
         </Card>
       </div>
-
-      {/* Right side - image */}
       <div className={styles.imageSection}>
         <div className={styles.imageContainer}>
           <img src="/logo-concretiza.jpg" alt="Welcome illustration" className={styles.image} />
         </div>
       </div>
 
-      {/* Mobile version of the right side - shown only on small screens */}
       {isMobile && (
         <div className={styles.mobileImageSection}>
           <img src="/placeholder.svg?height=200&width=200" alt="Welcome illustration" className={styles.mobileImage} />

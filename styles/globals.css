@@ -93,7 +93,6 @@ body {
   }
 }
 
-/* Print styles */
 @media print {
   .previewModal {
     width: 100%;
@@ -133,22 +132,15 @@ body {
   }
 }
 
-/*------------------------------------
-  ESTILOS DE IMPRESSÃO GLOBAIS
-------------------------------------*/
 @media print {
-  /* 1) Esconde todo o resto */
   body * {
     display: none !important;
   }
-
-  /* 2) Mostra só o wrapper que contém o preview */
   .printWrapper, 
   .printWrapper * {
     display: block !important;
   }
 
-  /* 3) Força o wrapper a ocupar a página inteira */
   .printWrapper {
     position: fixed !important;
     top: 0 !important;
@@ -160,21 +152,17 @@ body {
     margin: 0 !important;
     padding: 0 !important;
   }
-
-  /* 4) Garante que o conteúdo interno não fique cortado */
   .printWrapper .previewModal,
   .printWrapper .previewContent {
     max-height: none !important;
     overflow: visible !important;
   }
 
-  /* 5) Oculta botões do preview */
   .printWrapper .previewActions,
   .printWrapper .closeButton {
     display: none !important;
   }
 
-  /* 6) Evita quebras de página no meio de tabelas ou seções */
   .printWrapper .previewSection,
   .printWrapper .previewGrid,
   .printWrapper .previewTable,

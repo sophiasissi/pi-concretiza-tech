@@ -1,4 +1,4 @@
-/* Container styles */
+
 .container {
   min-height: 100vh;
   width: 100%;
@@ -12,7 +12,6 @@
   }
 }
 
-/* Form section styles */
 .formSection {
   display: flex;
   align-items: center;
@@ -37,7 +36,6 @@
   min-height: 100vh;
 }
 
-/* Card styles */
 .card {
   width: 100%;
   max-width: 90%;
@@ -57,7 +55,6 @@
   }
 }
 
-/* Card header styles */
 .cardHeader {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -71,7 +68,6 @@
   }
 }
 
-/* Card title styles */
 .cardTitle {
   font-size: 1.25rem;
   font-weight: 700;
@@ -83,7 +79,6 @@
   }
 }
 
-/* Card content styles */
 .cardContent {
   display: flex;
   flex-direction: column;
@@ -99,14 +94,12 @@
   }
 }
 
-/* Form group styles */
 .formGroup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-/* Label styles */
 .label {
   font-size: 0.875rem;
 }
@@ -117,7 +110,6 @@
   }
 }
 
-/* Input styles */
 .input {
   height: 2.5rem;
 }
@@ -128,12 +120,10 @@
   }
 }
 
-/* Password input container */
 .passwordContainer {
   position: relative;
 }
 
-/* Toggle password button */
 .toggleButton {
   position: absolute;
   right: 0;
@@ -143,7 +133,6 @@
   padding-right: 0.75rem;
 }
 
-/* Card footer styles */
 .cardFooter {
   display: flex;
   justify-content: center;
@@ -159,7 +148,6 @@
   }
 }
 
-/* Login button styles */
 .loginButton {
   width: 80%;
   padding-top: 0.5rem;
@@ -183,7 +171,6 @@
   }
 }
 
-/* Image section styles */
 .imageSection {
   display: none;
 }
@@ -197,7 +184,6 @@
   }
 }
 
-/* Image container styles */
 .imageContainer {
   padding: 1rem;
   display: flex;
@@ -217,7 +203,6 @@
   }
 }
 
-/* Image styles */
 .image {
   max-width: 200%;
   height: auto;
@@ -227,7 +212,6 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-/* Mobile image section styles */
 .mobileImageSection {
   display: flex;
   align-items: center;
@@ -237,7 +221,6 @@
   min-height: 30vh;
 }
 
-/* Mobile image styles */
 .mobileImage {
   max-width: 70%;
   height: auto;

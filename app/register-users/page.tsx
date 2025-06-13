@@ -7,7 +7,6 @@ import HeaderWithIcons from "../../components/header-with-icons"
 import styles from "./register-users.module.css"
 import { ArrowLeft } from "lucide-react"
 
-// Update the interface to match the simplified form
 interface UserFormData {
   nomeCompleto: string
   usuario: string
@@ -19,17 +18,15 @@ export default function RegisterUsersPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is admin
     try {
       const userData = localStorage.getItem("user")
       if (userData) {
         const user = JSON.parse(userData)
         if (!user.isAdmin) {
-          // Redirect non-admin users to home page
+      
           router.push("/home")
         }
       } else {
-        // No user data found, redirect to login
         router.push("/")
       }
     } catch (error) {
@@ -38,7 +35,6 @@ export default function RegisterUsersPage() {
     }
   }, [router])
 
-  // Update the useState initialization
   const [formData, setFormData] = useState<UserFormData>({
     nomeCompleto: "",
     usuario: "",
@@ -53,7 +49,6 @@ export default function RegisterUsersPage() {
     router.push("/home")
   }
 
-  // Update the handleChange function to handle checkbox
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({
@@ -62,7 +57,6 @@ export default function RegisterUsersPage() {
     }))
   }
 
-  // Update the handleSubmit function to clarify database interaction
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -84,7 +78,6 @@ export default function RegisterUsersPage() {
         throw new Error(data.error || "Falha ao cadastrar usuário")
       }
 
-      // Reset form after successful submission
       setFormData({
         nomeCompleto: "",
         usuario: "",

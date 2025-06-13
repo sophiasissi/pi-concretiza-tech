@@ -19,9 +19,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 
-// Define the interface for the form data
 interface BudgetFormData {
-  // Dados do Cliente
   contratante: string;
   email: string;
   endereco: string;
@@ -31,16 +29,12 @@ interface BudgetFormData {
   bairro: string;
   cep: string;
   contato: string;
-  documento: string; // cnpj/cpf
+  documento: string;
   cidade: string;
-  ie: string; // can be null
-
-  // Dados do Orçamento
+  ie: string;
   numeroProposta: string;
   vendedora: string;
   data: string;
-
-  // Dados do Projeto
   enderecoObra: string;
   profundidade: string;
   profundidade2: string;
@@ -55,29 +49,21 @@ interface BudgetFormData {
   unidade: string;
   unidade2: string;
   unidade3: string;
-
-  // Payment fields
   paymentOption: "diaria" | "porMetro";
   valorDiaria: string;
   valorPorMetro1: string;
   valorPorMetro2: string;
   valorPorMetro3: string;
-
-  // Additional costs
   taxaTransporte: string;
   segurancaEquipamento: string;
   art: string;
-
-  // Observations
   observacoes: string;
-
   valorTotalEstimado: string;
 }
 
 export default function BuildBudgetsPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<BudgetFormData>({
-    // Dados do Cliente
     contratante: "",
     email: "",
     endereco: "",
@@ -90,13 +76,9 @@ export default function BuildBudgetsPage() {
     documento: "",
     cidade: "",
     ie: "",
-
-    // Dados do Orçamento
     numeroProposta: "",
     vendedora: "",
     data: "",
-
-    // Dados do Projeto
     enderecoObra: "",
     profundidade: "",
     profundidade2: "",
@@ -111,30 +93,22 @@ export default function BuildBudgetsPage() {
     unidade: "",
     unidade2: "",
     unidade3: "",
-
-    // Payment fields
     paymentOption: "diaria",
     valorDiaria: "",
     valorPorMetro1: "",
     valorPorMetro2: "",
     valorPorMetro3: "",
-
-    // Additional costs
     taxaTransporte: "",
     segurancaEquipamento: "",
     art: "",
-
-    // Observations
     observacoes: "",
     valorTotalEstimado: "",
   });
 
-  // State to track visibility of additional rows
   const [showRow2, setShowRow2] = useState(false);
   const [showRow3, setShowRow3] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Formata CEP como 00000-000
   const formatCep = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 8);
     return digits.replace(/^(\d{5})(\d{0,3})/, (_m, p1, p2) =>
@@ -142,11 +116,9 @@ export default function BuildBudgetsPage() {
     );
   };
 
-  // Formata CPF (até 11 dígitos) ou CNPJ (>11 dígitos)
   const formatCnpjCpf = (value: string) => {
     const digits = value.replace(/\D/g, "");
     if (digits.length <= 11) {
-      // CPF: 000.000.000-00
       return digits.replace(
         /(\d{3})(\d{0,3})(\d{0,3})(\d{0,2})/,
         (_m, a, b, c, d) => {
@@ -158,7 +130,6 @@ export default function BuildBudgetsPage() {
         }
       );
     } else {
-      // CNPJ: 00.000.000/0000-00
       return digits.replace(
         /(\d{2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/,
         (_m, a, b, c, d, e) => {
@@ -172,12 +143,9 @@ export default function BuildBudgetsPage() {
       );
     }
   };
-
-  // Formata telefone fixo (até 10 dígitos) ou móvel (11 dígitos)
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
     if (digits.length <= 10) {
-      // (00)0000-0000
       return digits.replace(/(\d{2})(\d{0,4})(\d{0,4})/, (_m, a, b, c) => {
         let s = a ? `(${a}` : "";
         if (b) s += `)${b}`;
@@ -185,7 +153,6 @@ export default function BuildBudgetsPage() {
         return s;
       });
     } else {
-      // (00)00000-0000
       return digits.replace(/(\d{2})(\d{5})(\d{0,4})/, (_m, a, b, c) => {
         let s = a ? `(${a}` : "";
         if (b) s += `)${b}`;
@@ -194,8 +161,6 @@ export default function BuildBudgetsPage() {
       });
     }
   };
-
-  // Handler genérico de blur para aplicar a máscara
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let formatted = value;
@@ -231,51 +196,40 @@ const [isSaving, setIsSaving] = useState(false);
 const [saveError, setSaveError] = useState<string | null>(null);
 const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
 
-const handleSubmit = async (e: React.FormEvent) => { // Marque como async
+const handleSubmit = async (e: React.FormEvent) => { 
   e.preventDefault();
-  setIsSaving(true);     // Indica que o salvamento começou
-  setSaveError(null);    // Limpa erros anteriores
-  setSaveSuccess(null);  // Limpa mensagens de sucesso anteriores
-
-  // O comentário original já indicava o próximo passo:
-  // // In a real application, you would send this data to your API
+  setIsSaving(true);  
+  setSaveError(null);  
+  setSaveSuccess(null); 
   console.log("Enviando para API - Form data:", formData);
 
   try {
-    const response = await fetch("/api/projects", { // Endpoint da API que criamos
+    const response = await fetch("/api/projects", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData), // Envia os dados do formulário como JSON
+      body: JSON.stringify(formData),
     });
 
-    const result = await response.json(); // Pega a resposta da API
+    const result = await response.json(); 
 
     if (!response.ok) {
-      // Se a API retornou um erro (status não foi 2xx)
       throw new Error(result.details || result.error || "Falha ao salvar orçamento");
     }
 
-    // Se chegou aqui, a API salvou com sucesso
     setSaveSuccess(result.message || "Orçamento salvo com sucesso!");
     console.log("Orçamento salvo:", result);
-    // Opcional: Limpar o formulário ou redirecionar após o sucesso
-    // setFormData({ ...initialFormData }); // Resetar formulário
-    // router.push("/algum-lugar-apos-salvar"); // Redirecionar
-
-    // Você ainda pode querer mostrar a pré-visualização após o sucesso
     setShowPreview(true);
 
   } catch (err) {
     console.error("Erro ao salvar orçamento:", err);
     setSaveError((err as Error).message || "Ocorreu um erro ao salvar. Tente novamente.");
   } finally {
-    setIsSaving(false); // Indica que o salvamento terminou (com sucesso ou erro)
+    setIsSaving(false);
   }
 };
 
-  // Function to add a new row
   const addRow = () => {
     if (!showRow2) {
       setShowRow2(true);
@@ -284,11 +238,9 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     }
   };
 
-  // Function to delete row 2
   const deleteRow2 = () => {
     setShowRow2(false);
     setShowRow3(false);
-    // Clear the data for row 2 and 3
     setFormData((prev) => ({
       ...prev,
       profundidade2: "",
@@ -304,7 +256,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     }));
   };
 
-  // Function to delete row 3
   const deleteRow3 = () => {
     setShowRow3(false);
     setFormData((prev) => ({
@@ -318,19 +269,16 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
   };
 
   const handlePrint = () => {
-  // Seleciona cabeçalho e conteúdo (sem o wrapper scroll)
   const headerEl = document.querySelector(`.${styles.previewHeader}`)!;
   const contentEl = document.querySelector(`.${styles.previewContent}`)!;
   if (!headerEl || !contentEl) return;
 
-  // Captura seus estilos globais e modulares
   const styleTags = Array.from(
     document.querySelectorAll('link[rel="stylesheet"], style')
   )
     .map(el => el.outerHTML)
     .join('\n');
 
-  // Monta um HTML limpo, sem wrappers de scroll
   const html = `
     <html>
       <head>
@@ -363,7 +311,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     </html>
   `;
 
-  // Abre nova janela e dispara print
   const win = window.open('', '_blank', 'width=900,height=800');
   if (!win) return;
   win.document.open();
@@ -384,12 +331,8 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     }));
   };
 
-  // Function to format currency input
   const formatCurrency = (value: string) => {
-    // Remove non-numeric characters
     const numericValue = value.replace(/\D/g, "");
-
-    // Convert to number and format
     if (numericValue === "") return "";
 
     const number = Number.parseInt(numericValue, 10) / 100;
@@ -399,7 +342,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
     })}`;
   };
 
-  // Handle currency input change
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const formattedValue = formatCurrency(value);
@@ -409,14 +351,11 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
       [name]: formattedValue,
     }));
   };
-
-  // Calculate total based on inputs
   const calculateTotal = () => {
     let total = 0;
 
     try {
       if (formData.paymentOption === "diaria") {
-        // Calculate based on daily rate
         const dailyRate =
           Number.parseFloat(
             formData.valorDiaria.replace(/[^\d,]/g, "").replace(",", ".")
@@ -424,7 +363,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
         const days = Number.parseInt(formData.previsaoDias, 10) || 0;
         total = dailyRate * days;
       } else {
-        // Calculate based on per meter rate
         const rate1 =
           Number.parseFloat(
             formData.valorPorMetro1.replace(/[^\d,]/g, "").replace(",", ".")
@@ -454,7 +392,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
         }
       }
 
-      // Add additional costs
       const transportFee =
         Number.parseFloat(
           formData.taxaTransporte.replace(/[^\d,]/g, "").replace(",", ".")
@@ -479,8 +416,7 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
       return "R$ 0,00";
     }
   };
-
-  //Função para salvar o orçamento no template feito no Excel
+  
   const handleSaveExcel = async () => {
   const clienteSlug = formData.cliente.trim().replace(/\s+/g, "_");
   const res = await fetch("/template_orcamento.xlsx");
@@ -571,13 +507,13 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
         </div>
 
         <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
-          {/* First Section - Dados do Cliente */}
+
           <div className={styles.section}>
             <div className={styles.sectionDivider} />
             <h2 className={styles.sectionTitle}>Dados do Cliente</h2>
 
             <div className={styles.dataGrid}>
-              {/* Linha 1 */}
+  
               <div className={styles.formGroup}>
                 <label htmlFor="contratante" className={styles.label}>
                   Contratante
@@ -640,7 +576,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                 />
               </div>
 
-              {/* Linha 2 */}
               <div className={styles.formGroup}>
                 <label htmlFor="endereco" className={styles.label}>
                   Endereço
@@ -702,7 +637,7 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                 />
               </div>
 
-              {/* Linha 3 */}
+          
               <div className={styles.formGroup}>
                 <label htmlFor="cep" className={styles.label}>
                   CEP
@@ -768,13 +703,11 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
             </div>
           </div>
 
-          {/* Second Section - Dados do Orçamento */}
+    
           <div className={styles.section}>
             <div className={styles.sectionDivider}></div>
             <h2 className={styles.sectionTitle}>Dados do Orçamento</h2>
-
             <div className={styles.dataGrid}>
-              {/* First Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label htmlFor="numeroProposta" className={styles.label}>
@@ -792,8 +725,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   />
                 </div>
               </div>
-
-              {/* Second Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label htmlFor="vendedora" className={styles.label}>
@@ -811,8 +742,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   />
                 </div>
               </div>
-
-              {/* Third Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label htmlFor="data" className={styles.label}>
@@ -831,15 +760,10 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               </div>
             </div>
           </div>
-
-          {/* Third Section – Dados do Projeto */}
           <div className={styles.section}>
             <div className={styles.sectionDivider} />
             <h2 className={styles.sectionTitle}>Dados do Projeto</h2>
-
-            {/* Top: Endereço da Obra + Previsão de Dias */}
             <div className={styles.twoColumnGrid}>
-              {/* Endereço da Obra */}
               <div className={styles.formGroup}>
                 <label htmlFor="enderecoObra" className={styles.label}>
                   Endereço da Obra
@@ -855,8 +779,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   placeholder="Endereço da obra"
                 />
               </div>
-
-              {/* Previsão de Dias */}
               <div className={styles.formGroup}>
                 <label htmlFor="previsaoDias" className={styles.label}>
                   Previsão de Dias
@@ -875,9 +797,7 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               </div>
             </div>
 
-            {/* Grid principal: profundidade, unidade, diâmetro, total de metros */}
             <div className={styles.dataGrid}>
-              {/* Profundidade */}
               <div className={styles.formGroup}>
                 <label htmlFor="profundidade" className={styles.label}>
                   Profundidade
@@ -893,8 +813,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   placeholder="Profundidade em metros"
                 />
               </div>
-
-              {/* Unidade */}
               <div className={styles.formGroup}>
                 <label htmlFor="unidade" className={styles.label}>
                   Unidade
@@ -911,8 +829,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   min="1"
                 />
               </div>
-
-              {/* Diâmetro */}
               <div className={styles.formGroup}>
                 <label htmlFor="diametro" className={styles.label}>
                   Diâmetro
@@ -928,8 +844,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   placeholder="Diâmetro em centímetros"
                 />
               </div>
-
-              {/* Total de Metros */}
               <div className={styles.formGroup}>
                 <label htmlFor="totalMetros" className={styles.label}>
                   Total de Metros
@@ -946,12 +860,9 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                 />
               </div>
             </div>
-
-            {/* Dynamic Rows (idem antes, mas dentro de dataGrid) */}
             {showRow2 && (
               <div className={styles.dynamicRow}>
                 <div className={styles.dataGrid}>
-                  {/* Profundidade 2 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="profundidade2" className={styles.label}>
                       Profundidade 2
@@ -967,7 +878,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       placeholder="Profundidade em metros"
                     />
                   </div>
-                  {/* Unidade 2 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="unidade2" className={styles.label}>
                       Unidade 2
@@ -984,7 +894,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       min="1"
                     />
                   </div>
-                  {/* Diâmetro 2 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="diametro2" className={styles.label}>
                       Diâmetro 2
@@ -1000,7 +909,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       placeholder="Diâmetro em centímetros"
                     />
                   </div>
-                  {/* Total de Metros 2 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="totalMetros2" className={styles.label}>
                       Total de Metros 2
@@ -1023,7 +931,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
             {showRow3 && (
               <div className={styles.dynamicRow}>
                 <div className={styles.dataGrid}>
-                  {/* Profundidade 3 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="profundidade3" className={styles.label}>
                       Profundidade 3
@@ -1039,7 +946,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       placeholder="Profundidade em metros"
                     />
                   </div>
-                  {/* Unidade 3 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="unidade3" className={styles.label}>
                       Unidade 3
@@ -1056,7 +962,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       min="1"
                     />
                   </div>
-                  {/* Diâmetro 3 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="diametro3" className={styles.label}>
                       Diâmetro 3
@@ -1072,7 +977,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       placeholder="Diâmetro em centímetros"
                     />
                   </div>
-                  {/* Total de Metros 3 */}
                   <div className={styles.formGroup}>
                     <label htmlFor="totalMetros3" className={styles.label}>
                       Total de Metros 3
@@ -1092,7 +996,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               </div>
             )}
 
-            {/* Botões de adicionar/remover */}
             <div className={styles.buttonsContainer}>
               {(!showRow2 || !showRow3) && (
                 <button
@@ -1113,8 +1016,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                 </button>
               )}
             </div>
-
-            {/* Payment Option Section */}
             <div className={styles.paymentSection}>
               <h3 className={styles.paymentTitle}>Opção de Pagamento</h3>
 
@@ -1149,11 +1050,8 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   </label>
                 </div>
               </div>
-
-              {/* Conditional Payment Inputs */}
               {formData.paymentOption === "diaria" ? (
                 <div className={styles.dataGrid}>
-                  {/* First Column */}
                   <div className={styles.column}>
                     <div className={styles.formGroup}>
                       <label htmlFor="valorDiaria" className={styles.label}>
@@ -1174,7 +1072,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                 </div>
               ) : (
                 <div className={styles.dataGrid}>
-                  {/* First Column */}
                   <div className={styles.column}>
                     <div className={styles.formGroup}>
                       <label htmlFor="valorPorMetro1" className={styles.label}>
@@ -1192,8 +1089,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       />
                     </div>
                   </div>
-
-                  {/* Second Column */}
                   <div className={styles.column}>
                     {showRow2 && (
                       <div className={styles.formGroup}>
@@ -1218,8 +1113,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                       </div>
                     )}
                   </div>
-
-                  {/* Third Column */}
                   <div className={styles.column}>
                     {showRow3 && (
                       <div className={styles.formGroup}>
@@ -1248,14 +1141,11 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               )}
             </div>
           </div>
-
-          {/* Fourth Section - Custos Adicionais */}
           <div className={styles.section}>
             <div className={styles.sectionDivider}></div>
             <h2 className={styles.sectionTitle}>Custos Adicionais</h2>
 
             <div className={styles.dataGrid}>
-              {/* First Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label htmlFor="taxaTransporte" className={styles.label}>
@@ -1272,8 +1162,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   />
                 </div>
               </div>
-
-              {/* Second Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label
@@ -1293,8 +1181,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
                   />
                 </div>
               </div>
-
-              {/* Third Column */}
               <div className={styles.column}>
                 <div className={styles.formGroup}>
                   <label htmlFor="art" className={styles.label}>
@@ -1313,8 +1199,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               </div>
             </div>
           </div>
-
-          {/* Sixth Section - Observações */}
           <div className={styles.section}>
             <div className={styles.sectionDivider}></div>
             <h2 className={styles.sectionTitle}>Observações</h2>
@@ -1334,8 +1218,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
               />
             </div>
           </div>
-
-          {/* Total Calculation */}
           <div className={styles.totalSection}>
             <div className={styles.totalLabel}>Valor Total Estimado:</div>
             <div className={styles.totalValue}>{calculateTotal()}</div>
@@ -1352,8 +1234,6 @@ const handleSubmit = async (e: React.FormEvent) => { // Marque como async
             </button>
           </div>
         </form>
-
-        {/* Budget Preview Modal */}
         {showPreview && (
           <div className={`${styles.modalOverlay} ${styles.printWrapper}`}>
             <div className={styles.previewModal}>
